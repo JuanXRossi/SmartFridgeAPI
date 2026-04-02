@@ -5,13 +5,14 @@ using System.Threading.Tasks;
 
 namespace SupermarketShopListAPI.Models
 {
-    public class Product
+    public class Urgency
     {
         public int Id { get; set; }
+
         public string Name { get; set; } = string.Empty;
 
-        public int? UrgencyId { get; set; }
+        public int MinAmount { get; set; }
 
-        public Urgency? Urgency { get; set; }
+        public List<Product> Products { get; set; } = new List<Product>();
     }
 }
