@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SupermarketShopListAPI.Models
@@ -10,8 +11,10 @@ namespace SupermarketShopListAPI.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
 
-        public int? UrgencyId { get; set; }
+        public int UrgencyId { get; set; }
 
-        public Urgency? Urgency { get; set; }
+        public required Urgency Urgency { get; set; }
+        [JsonIgnore]
+        public List<Stock>? Stocks { get; set; }
     }
 }

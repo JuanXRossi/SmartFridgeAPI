@@ -9,7 +9,7 @@ namespace SupermarketShopListAPI.Models
     {
         public int Id { get; set; }
 
-        public List<Product> Products { get; set; } = new List<Product>();
+        public List<Product>? Products { get; set; }
 
         public int Amount { get; set; }
 
