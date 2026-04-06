@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SupermarketShopListAPI.Mappers;
 using SupermarketShopListAPI.Models.Data;
 
 namespace SupermarketShopListAPI.Controllers
@@ -20,7 +22,10 @@ namespace SupermarketShopListAPI.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var products = _context.Products.ToList();
+            var products = _context.Products
+                .Include(p => p.Urgency)
+                .ToList()
+                .Select(p => p.ToProductDto());
 
             return Ok(products);
         }
