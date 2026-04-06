@@ -15,7 +15,16 @@ namespace SupermarketShopListAPI.Mappers
             {
                 Id = product.Id,
                 Name = product.Name,
-                UrgencyName = product.Urgency.Name
+                UrgencyName = product.Urgency?.Name ?? "Unknown"
+            };
+        }
+
+        public static Product ToProductFromCreateDto(this CreateProductRequestDto product)
+        {
+            return new Product
+            {
+                Name = product.Name,
+                UrgencyId = product.UrgencyId
             };
         }
     }

@@ -13,7 +13,7 @@ namespace SupermarketShopListAPI.Models
 
         public int UrgencyId { get; set; }
 
-        public required Urgency Urgency { get; set; }
+        public Urgency? Urgency { get; set; }
         [JsonIgnore]
         public List<Stock>? Stocks { get; set; }
     }
