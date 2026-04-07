@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SupermarketShopListAPI.Dtos.Product;
+using SupermarketShopListAPI.Interfaces;
 using SupermarketShopListAPI.Mappers;
 using SupermarketShopListAPI.Models.Data;
 
@@ -14,18 +15,16 @@ namespace SupermarketShopListAPI.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly ApplicationDBContext _context;
-        public ProductController(ApplicationDBContext context)
+        private readonly IProductRepository _productRepository;
+        public ProductController(IProductRepository productRepository)
         {
-            _context = context;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var products = await _context.Products
-                .Include(p => p.Urgency)
-                .ToListAsync();
+            var products = await _productRepository.GetAllAsync();
                 
             var productsDto = products.Select(p => p.ToProductDto());
 
@@ -35,7 +34,7 @@ namespace SupermarketShopListAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var product = await _context.Products.FindAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
 
             if (product == null)
             {
@@ -50,12 +49,9 @@ namespace SupermarketShopListAPI.Controllers
         {
             var productModel = productDto.ToProductFromCreateDto();
 
-            await _context.Products.AddAsync(productModel);
-            await _context.SaveChangesAsync();
+            await _productRepository.CreateAsync(productModel);
 
-            var product = await _context.Products
-                .Include(p => p.Urgency)
-                .FirstOrDefaultAsync(p => p.Id == productModel.Id);
+            var product = await _productRepository.GetByModelAsync(productModel);
 
             if (product == null)
             {
@@ -69,21 +65,14 @@ namespace SupermarketShopListAPI.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
         {
-            var productModel = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            var productModel = await _productRepository.UpdateAsync(id, updateDto);
 
             if (productModel == null)
             {
                 return NotFound();
             }
 
-            productModel.Name = updateDto.Name;
-            productModel.UrgencyId = updateDto.UrgencyId;
-
-            await _context.SaveChangesAsync();
-
-            var product = await _context.Products
-                .Include(p => p.Urgency)
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _productRepository.GetByModelAsync(productModel);
 
             if (product == null)
             {
@@ -97,15 +86,12 @@ namespace SupermarketShopListAPI.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
+            var product = await _productRepository.DeleteAsync(id);
 
             if (product == null)
             {
                 return NotFound();
             }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using SupermarketShopListAPI.Interfaces;
 using SupermarketShopListAPI.Models.Data;
+using SupermarketShopListAPI.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,8 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
