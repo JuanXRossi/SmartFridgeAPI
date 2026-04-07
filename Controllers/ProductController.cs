@@ -21,20 +21,21 @@ namespace SupermarketShopListAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var products = _context.Products
+            var products = await _context.Products
                 .Include(p => p.Urgency)
-                .ToList()
-                .Select(p => p.ToProductDto());
+                .ToListAsync();
+                
+            var productsDto = products.Select(p => p.ToProductDto());
 
-            return Ok(products);
+            return Ok(productsDto);
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var product = _context.Products.Find(id);
+            var product = await _context.Products.FindAsync(id);
 
             if (product == null)
             {
@@ -45,16 +46,16 @@ namespace SupermarketShopListAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateProductRequestDto productDto)
+        public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
         {
             var productModel = productDto.ToProductFromCreateDto();
 
-            _context.Products.Add(productModel);
-            _context.SaveChanges();
+            await _context.Products.AddAsync(productModel);
+            await _context.SaveChangesAsync();
 
-            var product = _context.Products
+            var product = await _context.Products
                 .Include(p => p.Urgency)
-                .FirstOrDefault(p => p.Id == productModel.Id);
+                .FirstOrDefaultAsync(p => p.Id == productModel.Id);
 
             if (product == null)
             {
@@ -66,9 +67,9 @@ namespace SupermarketShopListAPI.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
         {
-            var productModel = _context.Products.FirstOrDefault(p => p.Id == id);
+            var productModel = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
 
             if (productModel == null)
             {
@@ -78,11 +79,11 @@ namespace SupermarketShopListAPI.Controllers
             productModel.Name = updateDto.Name;
             productModel.UrgencyId = updateDto.UrgencyId;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var product = _context.Products
+            var product = await _context.Products
                 .Include(p => p.Urgency)
-                .FirstOrDefault(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
             {
@@ -94,9 +95,9 @@ namespace SupermarketShopListAPI.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null)
             {
@@ -104,7 +105,7 @@ namespace SupermarketShopListAPI.Controllers
             }
 
             _context.Products.Remove(product);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
