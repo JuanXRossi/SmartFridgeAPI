@@ -16,7 +16,8 @@ namespace SupermarketShopListAPI.Controllers
     public class ProductController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
-        public ProductController(IProductRepository productRepository)
+        private readonly IUrgencyRepository _urgencyRepository;
+        public ProductController(IProductRepository productRepository, IUrgencyRepository urgencyRepository)
         {
             _productRepository = productRepository;
         }
@@ -47,6 +48,13 @@ namespace SupermarketShopListAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
         {
+            var urgencyExists = await _urgencyRepository.ExistsAsync(productDto.UrgencyId);
+
+            if (!urgencyExists)
+            {
+                return BadRequest($"Urgencia con id {productDto.UrgencyId} no existe");
+            }
+
             var productModel = productDto.ToProductFromCreateDto();
 
             await _productRepository.CreateAsync(productModel);
@@ -65,6 +73,13 @@ namespace SupermarketShopListAPI.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
         {
+            var urgencyExists = await _urgencyRepository.ExistsAsync(updateDto.UrgencyId);
+
+            if (!urgencyExists)
+            {
+                return BadRequest($"Urgencia con id {updateDto.UrgencyId} no existe.");
+            }
+
             var productModel = await _productRepository.UpdateAsync(id, updateDto);
 
             if (productModel == null)

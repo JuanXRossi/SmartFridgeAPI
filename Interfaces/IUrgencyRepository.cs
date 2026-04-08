@@ -18,5 +18,7 @@ namespace SupermarketShopListAPI.Interfaces
         Task<Urgency?> UpdateAsync(int id, UpdateUrgencyRequestDto urgencyDto);
 
         Task<Urgency?> DeleteAsync(int id);
+
+        Task<bool> ExistsAsync(int urgencyId);
     }
 }

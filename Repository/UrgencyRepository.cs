@@ -41,6 +41,11 @@ namespace SupermarketShopListAPI.Repository
             return urgency;
         }
 
+        public async Task<bool> ExistsAsync(int urgencyId)
+        {
+            return await _context.Urgencies.AnyAsync(u => u.Id == urgencyId);
+        }
+
         public async Task<List<Urgency>> GetAllAsync()
         {
             return await _context.Urgencies.ToListAsync();

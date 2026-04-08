@@ -18,6 +18,11 @@ namespace SupermarketShopListAPI.Repository
             _context = context;
         }
 
+        public async Task<bool> AnyWithUrgencyAsync(int urgencyId)
+        {
+            return await _context.Products.AnyAsync(p => p.UrgencyId == urgencyId);
+        }
+
         public async Task<Product> CreateAsync(Product productModel)
         {
             await _context.Products.AddAsync(productModel);

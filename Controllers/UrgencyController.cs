@@ -16,10 +16,12 @@ namespace SupermarketShopListAPI.Controllers
     public class UrgencyController : ControllerBase
     {
         private readonly IUrgencyRepository _urgencyRepository;
+        private readonly IProductRepository _productRepository;
 
-        public UrgencyController(IUrgencyRepository urgencyRepository)
+        public UrgencyController(IUrgencyRepository urgencyRepository, IProductRepository productRepository)
         {
             _urgencyRepository = urgencyRepository;
+            _productRepository = productRepository;
         }
 
         [HttpGet]
@@ -71,6 +73,13 @@ namespace SupermarketShopListAPI.Controllers
         [Route("{id}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            var inUse = await _productRepository.AnyWithUrgencyAsync(id);
+
+            if (inUse)
+            {
+                return BadRequest($"Urgencia con id {id} está en uso por uno o más productos.");
+            }
+
             var urgency = await _urgencyRepository.DeleteAsync(id);
 
             if (urgency == null)
