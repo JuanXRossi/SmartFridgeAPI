@@ -27,11 +27,6 @@ namespace SmartFridgeAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var urgencies = await _urgencyRepository.GetAllAsync();
 
             return Ok(urgencies);
@@ -40,11 +35,6 @@ namespace SmartFridgeAPI.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var urgency = await _urgencyRepository.GetByIdAsync(id);
 
             if (urgency == null)
@@ -58,11 +48,6 @@ namespace SmartFridgeAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUrgencyRequestDto urgencyDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var urgencyModel = urgencyDto.ToUrgencyFromCreateDto();
 
             await _urgencyRepository.CreateAsync(urgencyModel);
@@ -74,11 +59,6 @@ namespace SmartFridgeAPI.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUrgencyRequestDto urgencyDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var urgencyModel = await _urgencyRepository.UpdateAsync(id, urgencyDto);
 
             if (urgencyModel == null)
@@ -93,11 +73,6 @@ namespace SmartFridgeAPI.Controllers
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            
             var inUse = await _productRepository.AnyWithUrgencyAsync(id);
 
             if (inUse)
