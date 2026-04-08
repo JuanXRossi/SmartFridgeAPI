@@ -65,7 +65,7 @@ namespace SmartFridgeAPI.Repository
                 return null;
             }
 
-            urgencyModel.Name = urgencyDto.Name;
+            urgencyModel.Name = urgencyDto.Name!;
             urgencyModel.MinAmount = urgencyDto.MinAmount;
 
             await _context.SaveChangesAsync();

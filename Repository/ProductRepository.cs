@@ -53,7 +53,7 @@ namespace SmartFridgeAPI.Repository
 
         public async Task<Product?> GetByIdAsync(int id)
         {
-            return await _context.Products.FindAsync(id);
+            return await _context.Products.Include(p => p.Urgency).FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Product?> GetByModelAsync(Product productModel)
@@ -70,7 +70,7 @@ namespace SmartFridgeAPI.Repository
                 return null;
             }
 
-            productModel.Name = productDto.Name;
+            productModel.Name = productDto.Name!;
             productModel.UrgencyId = productDto.UrgencyId;
 
             await _context.SaveChangesAsync();

@@ -13,7 +13,7 @@ namespace SmartFridgeAPI.Mappers
         {
             return new Urgency
             {
-                Name = urgency.Name,
+                Name = urgency.Name!,
                 MinAmount = urgency.MinAmount
             };
         }

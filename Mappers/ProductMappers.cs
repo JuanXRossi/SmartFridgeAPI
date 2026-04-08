@@ -23,7 +23,7 @@ namespace SmartFridgeAPI.Mappers
         {
             return new Product
             {
-                Name = product.Name,
+                Name = product.Name!,
                 UrgencyId = product.UrgencyId
             };
         }

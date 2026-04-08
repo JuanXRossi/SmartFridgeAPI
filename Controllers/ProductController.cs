@@ -26,6 +26,11 @@ namespace SmartFridgeAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var products = await _productRepository.GetAllAsync();
                 
             var productsDto = products.Select(p => p.ToProductDto());
@@ -33,9 +38,14 @@ namespace SmartFridgeAPI.Controllers
             return Ok(productsDto);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var product = await _productRepository.GetByIdAsync(id);
 
             if (product == null)
@@ -49,6 +59,11 @@ namespace SmartFridgeAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var urgencyExists = await _urgencyRepository.ExistsAsync(productDto.UrgencyId);
 
             if (!urgencyExists)
@@ -71,9 +86,14 @@ namespace SmartFridgeAPI.Controllers
         }
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var urgencyExists = await _urgencyRepository.ExistsAsync(updateDto.UrgencyId);
 
             if (!urgencyExists)
@@ -99,9 +119,14 @@ namespace SmartFridgeAPI.Controllers
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
             var product = await _productRepository.DeleteAsync(id);
 
             if (product == null)
