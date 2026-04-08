@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketShopListAPI.Dtos.Urgency;
-using SupermarketShopListAPI.Interfaces;
-using SupermarketShopListAPI.Mappers;
-using SupermarketShopListAPI.Models.Data;
+using SmartFridgeAPI.Dtos.Urgency;
+using SmartFridgeAPI.Interfaces;
+using SmartFridgeAPI.Mappers;
+using SmartFridgeAPI.Models.Data;
 
-namespace SupermarketShopListAPI.Controllers
+namespace SmartFridgeAPI.Controllers
 {
     [Route("/api/urgency")]
     [ApiController]

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketShopListAPI.Models.Data;
+using SmartFridgeAPI.Models.Data;
 
-namespace SupermarketShopListAPI.Controllers
+namespace SmartFridgeAPI.Controllers
 {
     [Route("app/stock")]
     [ApiController]

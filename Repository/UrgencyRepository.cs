@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SupermarketShopListAPI.Dtos.Urgency;
-using SupermarketShopListAPI.Interfaces;
-using SupermarketShopListAPI.Models;
-using SupermarketShopListAPI.Models.Data;
+using SmartFridgeAPI.Dtos.Urgency;
+using SmartFridgeAPI.Interfaces;
+using SmartFridgeAPI.Models;
+using SmartFridgeAPI.Models.Data;
 
-namespace SupermarketShopListAPI.Repository
+namespace SmartFridgeAPI.Repository
 {
     public class UrgencyRepository : IUrgencyRepository
     {

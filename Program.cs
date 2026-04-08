@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using SupermarketShopListAPI.Interfaces;
-using SupermarketShopListAPI.Models.Data;
-using SupermarketShopListAPI.Repository;
+using SmartFridgeAPI.Interfaces;
+using SmartFridgeAPI.Models.Data;
+using SmartFridgeAPI.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 

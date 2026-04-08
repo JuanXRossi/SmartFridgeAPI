@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using SupermarketShopListAPI.Models.Data;
+using SmartFridgeAPI.Models.Data;
 
 #nullable disable
 
-namespace SupermarketShopListAPI.Migrations
+namespace SmartFridgeAPI.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
     [Migration("20260403152527_init")]
@@ -40,7 +40,7 @@ namespace SupermarketShopListAPI.Migrations
                     b.ToTable("ProductStock");
                 });
 
-            modelBuilder.Entity("SupermarketShopListAPI.Models.Product", b =>
+            modelBuilder.Entity("SmartFridgeAPI.Models.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -62,7 +62,7 @@ namespace SupermarketShopListAPI.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("SupermarketShopListAPI.Models.Stock", b =>
+            modelBuilder.Entity("SmartFridgeAPI.Models.Stock", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -81,7 +81,7 @@ namespace SupermarketShopListAPI.Migrations
                     b.ToTable("Stock");
                 });
 
-            modelBuilder.Entity("SupermarketShopListAPI.Models.Urgency", b =>
+            modelBuilder.Entity("SmartFridgeAPI.Models.Urgency", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,22 +103,22 @@ namespace SupermarketShopListAPI.Migrations
 
             modelBuilder.Entity("ProductStock", b =>
                 {
-                    b.HasOne("SupermarketShopListAPI.Models.Product", null)
+                    b.HasOne("SmartFridgeAPI.Models.Product", null)
                         .WithMany()
                         .HasForeignKey("ProductsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SupermarketShopListAPI.Models.Stock", null)
+                    b.HasOne("SmartFridgeAPI.Models.Stock", null)
                         .WithMany()
                         .HasForeignKey("StocksId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("SupermarketShopListAPI.Models.Product", b =>
+            modelBuilder.Entity("SmartFridgeAPI.Models.Product", b =>
                 {
-                    b.HasOne("SupermarketShopListAPI.Models.Urgency", "Urgency")
+                    b.HasOne("SmartFridgeAPI.Models.Urgency", "Urgency")
                         .WithMany()
                         .HasForeignKey("UrgencyId")
                         .OnDelete(DeleteBehavior.Cascade)

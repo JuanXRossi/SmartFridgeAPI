@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
-namespace SupermarketShopListAPI.Models.Data
+namespace SmartFridgeAPI.Models.Data
 {
     public class ApplicationDBContext : DbContext
     {

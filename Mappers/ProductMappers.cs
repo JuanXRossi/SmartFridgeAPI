@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SupermarketShopListAPI.Dtos.Product;
-using SupermarketShopListAPI.Models;
+using SmartFridgeAPI.Dtos.Product;
+using SmartFridgeAPI.Models;
 
-namespace SupermarketShopListAPI.Mappers
+namespace SmartFridgeAPI.Mappers
 {
     public static class ProductMappers
     {

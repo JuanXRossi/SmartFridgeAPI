@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SupermarketShopListAPI.Dtos.Product;
-using SupermarketShopListAPI.Interfaces;
-using SupermarketShopListAPI.Mappers;
-using SupermarketShopListAPI.Models.Data;
+using SmartFridgeAPI.Dtos.Product;
+using SmartFridgeAPI.Interfaces;
+using SmartFridgeAPI.Mappers;
+using SmartFridgeAPI.Models.Data;
 
-namespace SupermarketShopListAPI.Controllers
+namespace SmartFridgeAPI.Controllers
 {
     [Route("api/product")]
     [ApiController]
@@ -20,6 +20,7 @@ namespace SupermarketShopListAPI.Controllers
         public ProductController(IProductRepository productRepository, IUrgencyRepository urgencyRepository)
         {
             _productRepository = productRepository;
+            _urgencyRepository = urgencyRepository;
         }
 
         [HttpGet]
