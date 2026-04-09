@@ -61,7 +61,9 @@ namespace SmartFridgeAPI.Repository
                 products = products.Where(p => p.Urgency!.Name.Contains(query.UrgencyName));
             }
 
-            return await products.ToListAsync();
+            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+
+            return await products.Skip(skipNumber).Take(query.PageNumber).ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
