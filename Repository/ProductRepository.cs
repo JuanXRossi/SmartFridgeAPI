@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SmartFridgeAPI.Controllers.Helpers;
 using SmartFridgeAPI.Dtos.Product;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
@@ -46,9 +47,21 @@ namespace SmartFridgeAPI.Repository
             return product;
         }
 
-        public async Task<List<Product>> GetAllAsync()
+        public async Task<List<Product>> GetAllAsync(QueryObject query)
         {
-            return await _context.Products.Include(p => p.Urgency).ToListAsync();
+            var products = _context.Products.Include(p => p.Urgency).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.ProductName))
+            {
+                products = products.Where(p => p.Name.Contains(query.ProductName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.UrgencyName))
+            {
+                products = products.Where(p => p.Urgency!.Name.Contains(query.UrgencyName));
+            }
+
+            return await products.ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)

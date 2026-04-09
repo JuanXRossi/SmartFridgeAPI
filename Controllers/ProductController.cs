@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SmartFridgeAPI.Controllers.Helpers;
 using SmartFridgeAPI.Dtos.Product;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Mappers;
@@ -24,9 +25,9 @@ namespace SmartFridgeAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
-            var products = await _productRepository.GetAllAsync();
+            var products = await _productRepository.GetAllAsync(query);
                 
             var productsDto = products.Select(p => p.ToProductDto());
 
