@@ -6,6 +6,7 @@ using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
 using SmartFridgeAPI.Models.Data;
 using SmartFridgeAPI.Repository;
+using SmartFridgeAPI.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,8 +28,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
 })
-.AddEntityFrameworkStores<ApplicationDBContext>()
-.AddDefaultTokenProviders();
+.AddEntityFrameworkStores<ApplicationDBContext>();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -57,6 +57,7 @@ builder.Services.AddValidation();
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUrgencyRepository, UrgencyRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

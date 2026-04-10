@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SmartFridgeAPI.Dtos.Account;
+using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
 
 namespace SmartFridgeAPI.Controllers
@@ -14,9 +15,11 @@ namespace SmartFridgeAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<User> _userManager;
-        public AccountController(UserManager<User> userManager)
+        private readonly ITokenService _tokenService;
+        public AccountController(UserManager<User> userManager, ITokenService tokenService)
         {
             _userManager = userManager;
+            _tokenService = tokenService;
         }
 
         [HttpPost("register")]
@@ -43,7 +46,14 @@ namespace SmartFridgeAPI.Controllers
 
                     if (roleResult.Succeeded)
                     {
-                        return Ok("Usuario creado.");
+                        return Ok(
+                            new NewUserDto
+                            {
+                                UserName = user.UserName,
+                                Email = user.Email,
+                                Token = _tokenService.CreateToken(user)
+                            }
+                        );
                     } 
                     else
                     {
