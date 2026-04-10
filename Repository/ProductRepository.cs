@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using SmartFridgeAPI.Controllers.Helpers;
+using SmartFridgeAPI.Helpers;
 using SmartFridgeAPI.Dtos.Product;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
@@ -63,7 +63,7 @@ namespace SmartFridgeAPI.Repository
 
             var skipNumber = (query.PageNumber - 1) * query.PageSize;
 
-            return await products.Skip(skipNumber).Take(query.PageNumber).ToListAsync();
+            return await products.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)

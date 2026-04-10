@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SmartFridgeAPI.Controllers.Helpers
+namespace SmartFridgeAPI.Helpers
 {
     public class QueryObject
     {
