@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SmartFridgeAPI.Helpers;
 using SmartFridgeAPI.Dtos.Product;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Mappers;
-using SmartFridgeAPI.Models.Data;
 
 namespace SmartFridgeAPI.Controllers
 {

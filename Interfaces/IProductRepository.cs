@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using SmartFridgeAPI.Helpers;
 using SmartFridgeAPI.Dtos.Product;
 using SmartFridgeAPI.Models;
