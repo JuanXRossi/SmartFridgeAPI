@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 
 namespace SmartFridgeAPI.Dtos.Account
 {
-    public class NewUserDto
+    public class RefreshTokenDto
     {
-        public string UserName { get; set; }
-        public string Email { get; set; }
-        public string Token { get; set; }
         public string RefreshToken { get; set; }
     }
 }

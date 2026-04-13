@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SmartFridgeAPI.Dtos.Account;
+using SmartFridgeAPI.Extensions;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
 
@@ -28,11 +31,6 @@ namespace SmartFridgeAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.UserName == loginDto.Username.ToLower());
 
             if (user == null)
@@ -47,12 +45,47 @@ namespace SmartFridgeAPI.Controllers
                 return Unauthorized("Nombre de usuario no encontrado y/o contraseña incorrecta");
             }
 
+            user.RefreshToken = _tokenService.CreateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
             return Ok(
                 new NewUserDto
                 {
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user),
+                    RefreshToken = user.RefreshToken
+                }
+            );
+        }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshTokenDto.RefreshToken);
+
+            if (user == null)
+            {
+                return Unauthorized("Usuario inválido.");
+            }
+
+            if (user.RefreshTokenExpiryTime < DateTime.Now)
+            {
+                return Unauthorized("Inicio de sesión necesario.");
+            }
+
+            user.RefreshToken = _tokenService.CreateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
+            return Ok(
+                new NewUserDto
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user),
+                    RefreshToken = user.RefreshToken
                 }
             );
         }
@@ -62,11 +95,6 @@ namespace SmartFridgeAPI.Controllers
         {
             try
             {
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
-
                 var user = new User
                 {
                     UserName = registerDto.Username,
@@ -81,12 +109,17 @@ namespace SmartFridgeAPI.Controllers
 
                     if (roleResult.Succeeded)
                     {
+                        user.RefreshToken = _tokenService.CreateRefreshToken();
+                        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                        await _userManager.UpdateAsync(user);
+
                         return Ok(
                             new NewUserDto
                             {
                                 UserName = user.UserName,
                                 Email = user.Email,
-                                Token = _tokenService.CreateToken(user)
+                                Token = _tokenService.CreateToken(user),
+                                RefreshToken = user.RefreshToken
                             }
                         );
                     } 
@@ -103,6 +136,25 @@ namespace SmartFridgeAPI.Controllers
             {
                 return StatusCode(500, e);
             }
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            var user = await _userManager.FindByNameAsync(User.GetUsername());
+
+            if (user == null)
+            {
+                return Unauthorized("Usuario inválido");
+            }
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = null;
+            await _userManager.UpdateAsync(user);
+
+            await _signInManager.SignOutAsync();
+            return Ok("Sesión cerrada.");
         }
     }
 }
