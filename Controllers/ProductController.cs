@@ -3,11 +3,13 @@ using SmartFridgeAPI.Helpers;
 using SmartFridgeAPI.Dtos.Product;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Mappers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SmartFridgeAPI.Controllers
 {
     [Route("api/product")]
     [ApiController]
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IProductRepository _productRepository;
@@ -18,6 +20,7 @@ namespace SmartFridgeAPI.Controllers
             _urgencyRepository = urgencyRepository;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
@@ -28,6 +31,7 @@ namespace SmartFridgeAPI.Controllers
             return Ok(productsDto);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -41,6 +45,7 @@ namespace SmartFridgeAPI.Controllers
             return Ok(product.ToProductDto());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateProductRequestDto productDto)
         {
@@ -65,6 +70,7 @@ namespace SmartFridgeAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = productModel.Id }, product.ToProductDto());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateProductRequestDto updateDto)
@@ -93,6 +99,7 @@ namespace SmartFridgeAPI.Controllers
             return Ok(product.ToProductDto());
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)

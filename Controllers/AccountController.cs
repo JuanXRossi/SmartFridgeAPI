@@ -41,15 +41,17 @@ namespace SmartFridgeAPI.Controllers
             }
 
             user.RefreshToken = _tokenService.CreateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _userManager.UpdateAsync(user);
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             return Ok(
                 new NewUserDto
                 {
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user),
+                    Token = _tokenService.CreateToken(user, roles),
                     RefreshToken = user.RefreshToken
                 }
             );
@@ -65,21 +67,23 @@ namespace SmartFridgeAPI.Controllers
                 return Unauthorized("Usuario inválido.");
             }
 
-            if (user.RefreshTokenExpiryTime < DateTime.Now)
+            if (user.RefreshTokenExpiryTime < DateTime.UtcNow)
             {
                 return Unauthorized("Inicio de sesión necesario.");
             }
 
             user.RefreshToken = _tokenService.CreateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _userManager.UpdateAsync(user);
+
+            var roles = await _userManager.GetRolesAsync(user);
 
             return Ok(
                 new NewUserDto
                 {
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user),
+                    Token = _tokenService.CreateToken(user, roles),
                     RefreshToken = user.RefreshToken
                 }
             );
@@ -105,15 +109,17 @@ namespace SmartFridgeAPI.Controllers
                     if (roleResult.Succeeded)
                     {
                         user.RefreshToken = _tokenService.CreateRefreshToken();
-                        user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+                        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
                         await _userManager.UpdateAsync(user);
+
+                        var roles = await _userManager.GetRolesAsync(user);
 
                         return Ok(
                             new NewUserDto
                             {
                                 UserName = user.UserName,
                                 Email = user.Email,
-                                Token = _tokenService.CreateToken(user),
+                                Token = _tokenService.CreateToken(user, roles),
                                 RefreshToken = user.RefreshToken
                             }
                         );
@@ -129,7 +135,7 @@ namespace SmartFridgeAPI.Controllers
                 }
             } catch(Exception e)
             {
-                return StatusCode(500, e);
+                return StatusCode(500, e.InnerException?.Message ?? e.Message);
             }
         }
 

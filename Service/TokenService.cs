@@ -19,7 +19,7 @@ namespace SmartFridgeAPI.Service
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigninKey"]));
         }
 
-        public string CreateToken(User user)
+        public string CreateToken(User user, IList<string> roles)
         {
             var claims = new List<Claim>
             {
@@ -27,12 +27,14 @@ namespace SmartFridgeAPI.Service
                 new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
             };
 
+            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
             var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
             
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(20),
+                Expires = DateTime.UtcNow.AddMinutes(20),
                 SigningCredentials = creds,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartFridgeAPI.Dtos.Urgency;
 using SmartFridgeAPI.Interfaces;
@@ -7,6 +8,7 @@ namespace SmartFridgeAPI.Controllers
 {
     [Route("/api/urgency")]
     [ApiController]
+    [Authorize]
     public class UrgencyController : ControllerBase
     {
         private readonly IUrgencyRepository _urgencyRepository;
@@ -18,6 +20,7 @@ namespace SmartFridgeAPI.Controllers
             _productRepository = productRepository;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -26,6 +29,7 @@ namespace SmartFridgeAPI.Controllers
             return Ok(urgencies);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -39,6 +43,7 @@ namespace SmartFridgeAPI.Controllers
             return Ok(urgency);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateUrgencyRequestDto urgencyDto)
         {
@@ -49,6 +54,7 @@ namespace SmartFridgeAPI.Controllers
             return CreatedAtAction(nameof(GetById), new { id = urgencyModel.Id }, urgencyModel);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut]
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateUrgencyRequestDto urgencyDto)
@@ -63,6 +69,7 @@ namespace SmartFridgeAPI.Controllers
             return Ok(urgencyModel);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
