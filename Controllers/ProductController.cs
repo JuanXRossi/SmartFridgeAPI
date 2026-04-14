@@ -7,14 +7,16 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace SmartFridgeAPI.Controllers
 {
-    [Route("api/product")]
-    [ApiController]
     [Authorize]
-    public class ProductController : ControllerBase
+    public class ProductController : ApiBaseController<ProductController>
     {
         private readonly IProductRepository _productRepository;
         private readonly IUrgencyRepository _urgencyRepository;
-        public ProductController(IProductRepository productRepository, IUrgencyRepository urgencyRepository)
+        public ProductController(
+            IProductRepository productRepository, 
+            IUrgencyRepository urgencyRepository, 
+            ILogger<ProductController> logger)
+        : base(logger)
         {
             _productRepository = productRepository;
             _urgencyRepository = urgencyRepository;

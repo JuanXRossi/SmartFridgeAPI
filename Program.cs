@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Serilog;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
 using SmartFridgeAPI.Models.Data;
@@ -12,6 +13,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File(
+        "logs/smartfridge-.log",
+        rollingInterval: RollingInterval.Day,
+        retainedFileCountLimit: 30
+    )
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
@@ -67,6 +81,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

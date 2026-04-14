@@ -9,14 +9,17 @@ using SmartFridgeAPI.Models;
 
 namespace SmartFridgeAPI.Controllers
 {
-    [Route("api/account")]
-    [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : ApiBaseController<AccountController>
     {
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<User> _signInManager;
-        public AccountController(UserManager<User> userManager, ITokenService tokenService, SignInManager<User> signInManager)
+        public AccountController(
+            UserManager<User> userManager, 
+            ITokenService tokenService, 
+            SignInManager<User> signInManager, 
+            ILogger<AccountController> logger)
+        : base(logger)
         {
             _userManager = userManager;
             _tokenService = tokenService;

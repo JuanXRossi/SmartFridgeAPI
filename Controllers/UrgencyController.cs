@@ -6,15 +6,17 @@ using SmartFridgeAPI.Mappers;
 
 namespace SmartFridgeAPI.Controllers
 {
-    [Route("/api/urgency")]
-    [ApiController]
     [Authorize]
-    public class UrgencyController : ControllerBase
+    public class UrgencyController : ApiBaseController<UrgencyController>
     {
         private readonly IUrgencyRepository _urgencyRepository;
         private readonly IProductRepository _productRepository;
 
-        public UrgencyController(IUrgencyRepository urgencyRepository, IProductRepository productRepository)
+        public UrgencyController(
+            IUrgencyRepository urgencyRepository, 
+            IProductRepository productRepository, 
+            ILogger<UrgencyController> logger)
+        : base(logger)
         {
             _urgencyRepository = urgencyRepository;
             _productRepository = productRepository;
