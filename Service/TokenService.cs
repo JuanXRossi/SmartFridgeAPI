@@ -23,8 +23,8 @@ namespace SmartFridgeAPI.Service
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.GivenName, user.UserName)
+                new Claim(JwtRegisteredClaimNames.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email)
             };
 
             claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));

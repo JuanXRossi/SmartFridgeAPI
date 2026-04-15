@@ -7,7 +7,7 @@ namespace SmartFridgeAPI.Extensions
     {
         public static string GetUsername(this ClaimsPrincipal user)
         {
-            return user.FindFirstValue(JwtRegisteredClaimNames.GivenName)!;
+            return user.FindFirstValue(JwtRegisteredClaimNames.Name)!;
         }
     }
 }

@@ -16,11 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
-    .WriteTo.Console()
     .WriteTo.File(
         "logs/smartfridge-.log",
         rollingInterval: RollingInterval.Day,
-        retainedFileCountLimit: 30
+        retainedFileCountLimit: 30,
+        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj} {Properties:j}{NewLine}{Exception}"
     )
     .CreateLogger();
 
@@ -32,6 +32,11 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+    }
 });
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
@@ -82,7 +87,30 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging(options =>
+{
+    options.GetLevel = (httpContext, elapsed, ex) =>
+    {
+        if (ex != null || httpContext.Response.StatusCode >= 500)
+        {
+            return Serilog.Events.LogEventLevel.Error;
+        }
+        if (httpContext.Response.StatusCode >= 400)
+        {
+            return Serilog.Events.LogEventLevel.Warning;
+        }
+
+        return Serilog.Events.LogEventLevel.Information;
+    };
+
+    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
+    {
+        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+        diagnosticContext.Set("RequestScheme", httpContext.Request.Scheme);
+        diagnosticContext.Set("UserName", httpContext.User.Identity?.Name ?? "Anonymous");
+        diagnosticContext.Set("RemoteIpAddress", httpContext.Connection.RemoteIpAddress);
+    };
+});
 
 app.UseHttpsRedirection();
 
