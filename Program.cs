@@ -49,6 +49,11 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
 })
 .AddEntityFrameworkStores<ApplicationDBContext>();
 
+builder.Services.Configure<PasswordHasherOptions>(options =>
+{
+    options.IterationCount = 100000;
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = 
