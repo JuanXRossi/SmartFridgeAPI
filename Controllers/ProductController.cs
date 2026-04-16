@@ -22,15 +22,15 @@ namespace SmartFridgeAPI.Controllers
             _urgencyRepository = urgencyRepository;
         }
 
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Member")]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             var products = await _productRepository.GetAllAsync(query);
                 
-            var productsDto = products.Select(p => p.ToProductDto());
+            //var productsDto = products.Select(p => p.ToProductDto());
 
-            return Ok(productsDto);
+            return Ok(products);
         }
 
         [Authorize(Roles = "Admin")]

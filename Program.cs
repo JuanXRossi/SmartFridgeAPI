@@ -74,7 +74,8 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
             System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:SigninKey"])
-        )
+        ),
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -85,6 +86,12 @@ builder.Services.AddScoped<IUrgencyRepository, UrgencyRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+    await context.Database.CanConnectAsync();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

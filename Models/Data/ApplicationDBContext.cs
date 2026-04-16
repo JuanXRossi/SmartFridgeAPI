@@ -18,6 +18,8 @@ namespace SmartFridgeAPI.Models.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<User>().HasIndex(u => u.RefreshToken);
+
             List<IdentityRole> roles = new List<IdentityRole>
             {
                 new IdentityRole

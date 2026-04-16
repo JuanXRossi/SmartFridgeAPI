@@ -43,13 +43,13 @@ namespace SmartFridgeAPI.Repository
             return product;
         }
 
-        public async Task<List<Product>> GetAllAsync(QueryObject query)
+        public async Task<List<ProductDto>> GetAllAsync(QueryObject query)
         {
-            var products = _context.Products.Include(p => p.Urgency).AsQueryable();
+            var products = _context.Products.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.ProductName))
             {
-                products = products.Where(p => p.Name.Contains(query.ProductName, StringComparison.OrdinalIgnoreCase));
+                products = products.Where(p => p.Name.ToLower().Contains(query.ProductName.ToLower()));
             }
 
             if (!string.IsNullOrWhiteSpace(query.UrgencyName))
@@ -59,7 +59,16 @@ namespace SmartFridgeAPI.Repository
 
             var skipNumber = (query.PageNumber - 1) * query.PageSize;
 
-            return await products.Skip(skipNumber).Take(query.PageSize).ToListAsync();
+            return await products
+                .Skip(skipNumber)
+                .Take(query.PageSize)
+                .Select(p => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    UrgencyName = p.Urgency!.Name
+                })
+                .ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
