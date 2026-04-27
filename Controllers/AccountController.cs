@@ -101,6 +101,7 @@ namespace SmartFridgeAPI.Controllers
                 {
                     UserName = registerDto.Username,
                     Email = registerDto.Email,
+                    Name = registerDto.Name,
                 };
 
                 var createdUser = await _userManager.CreateAsync(user, registerDto.Password!);
