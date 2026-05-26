@@ -26,6 +26,26 @@ namespace SmartFridgeAPI.Controllers
             _signInManager = signInManager;
         }
 
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            var user = await _userManager.FindByNameAsync(User.GetUsername());
+
+            if (user == null)
+                return NotFound("Usuario no encontrado");
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new UserPublicInfoDto
+            {
+                UserName = user.UserName!,
+                Name = user.Name!,
+                Email = user.Email!,
+                Roles = roles.ToList()
+            });
+        }
+
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
@@ -135,7 +155,8 @@ namespace SmartFridgeAPI.Controllers
                 }
                 else
                 {
-                    return StatusCode(500, createdUser.Errors);
+                    var message = string.Join(", ", createdUser.Errors.Select(e => e.Description));
+                    return BadRequest(new { message });
                 }
             } catch(Exception e)
             {
