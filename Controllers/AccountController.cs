@@ -14,16 +14,19 @@ namespace SmartFridgeAPI.Controllers
         private readonly UserManager<User> _userManager;
         private readonly ITokenService _tokenService;
         private readonly SignInManager<User> _signInManager;
+        private readonly IAccountRepository _accountRepository;
         public AccountController(
             UserManager<User> userManager, 
             ITokenService tokenService, 
             SignInManager<User> signInManager, 
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IAccountRepository accountRepository)
         : base(logger)
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _accountRepository = accountRepository;
         }
 
         [Authorize]
@@ -117,6 +120,16 @@ namespace SmartFridgeAPI.Controllers
         {
             try
             {
+                var existingUserName = await _userManager.FindByNameAsync(registerDto.Username!);
+                
+                if (existingUserName != null)
+                    return BadRequest(new { message = "El nombre de usuario ya está en uso." });
+
+                var existingEmail = await _userManager.FindByEmailAsync(registerDto.Email!);
+                
+                if (existingEmail != null)
+                    return BadRequest(new { message = "El email ya está en uso." });
+                
                 var user = new User
                 {
                     UserName = registerDto.Username,
@@ -162,6 +175,51 @@ namespace SmartFridgeAPI.Controllers
             {
                 return StatusCode(500, e.InnerException?.Message ?? e.Message);
             }
+        }
+
+        [Authorize]
+        [HttpPut]
+        [Route("update")]
+        public async Task<IActionResult> Update([FromBody] UpdateDto updateDto)
+        {
+            var user = await _userManager.FindByNameAsync(User.GetUsername());
+
+            if (user == null)
+                return NotFound("Usuario no encontrado");
+
+            if (!string.Equals(user.UserName, updateDto.Username, StringComparison.OrdinalIgnoreCase))
+            {
+                var existingUser = await _userManager.FindByNameAsync(updateDto.Username!);
+                if (existingUser != null)
+                    return BadRequest(new { message = "El nombre de usuario ya está en uso." });
+            }
+
+            if (!string.Equals(user.Email, updateDto.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                var existingUser = await _userManager.FindByEmailAsync(updateDto.Email!);
+                if (existingUser != null)
+                    return BadRequest(new { message = "El email ya está en uso." });
+            }
+
+            var result = await _accountRepository.UpdateUserAsync(user, updateDto);
+
+            if (!result.Succeeded)
+                return BadRequest(new { message = result.ErrorMessage });
+
+
+            user.RefreshToken = _tokenService.CreateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            return Ok(new NewUserDto
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = _tokenService.CreateToken(user, roles),
+                RefreshToken = user.RefreshToken
+            });
         }
 
         [Authorize]
