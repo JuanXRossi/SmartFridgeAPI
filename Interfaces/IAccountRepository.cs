@@ -5,6 +5,7 @@ namespace SmartFridgeAPI.Interfaces
 {
     public interface IAccountRepository
     {
-        Task<UpdateUserResult> UpdateUserAsync(User user, UpdateDto updateDto);
+        Task<UserTransactionResult> RegisterUserAsync(User user, RegisterDto registerDto);
+        Task<UserTransactionResult> UpdateUserAsync(User user, UpdateDto updateDto);
     }
 }

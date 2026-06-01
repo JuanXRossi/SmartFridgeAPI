@@ -8,8 +8,8 @@ namespace SmartFridgeAPI.Repository
 {
     public class AccountRepository : IAccountRepository
     {
-        private ApplicationDBContext _context;
-        private UserManager<User> _userManager;
+        private readonly ApplicationDBContext _context;
+        private readonly UserManager<User> _userManager;
 
         public AccountRepository(ApplicationDBContext context, UserManager<User> userManager)
         {
@@ -17,7 +17,33 @@ namespace SmartFridgeAPI.Repository
             _userManager = userManager;
         }
 
-        public async Task<UpdateUserResult> UpdateUserAsync(User user, UpdateDto updateDto)
+        public async Task<UserTransactionResult> RegisterUserAsync(User user, RegisterDto registerDto)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var createdUser = await _userManager.CreateAsync(user, registerDto.Password!);
+
+            if (!createdUser.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                var message = string.Join(", ", createdUser.Errors.Select(e => e.Description));
+                return UserTransactionResult.Failure(message);
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(user, "Member");
+
+            if (!roleResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                var message = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                return UserTransactionResult.Failure(message, isServerError: true);
+            }
+
+            await transaction.CommitAsync();
+            return UserTransactionResult.Success();
+        }
+
+        public async Task<UserTransactionResult> UpdateUserAsync(User user, UpdateDto updateDto)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -31,7 +57,7 @@ namespace SmartFridgeAPI.Repository
             {
                 await transaction.RollbackAsync();
                 var message = string.Join(", ", updateResult.Errors.Select(e => e.Description));
-                return UpdateUserResult.Failure(message);
+                return UserTransactionResult.Failure(message);
             }
 
             if (!string.IsNullOrWhiteSpace(updateDto.Password))
@@ -43,12 +69,12 @@ namespace SmartFridgeAPI.Repository
                 {
                     await transaction.RollbackAsync();
                     var message = string.Join(", ", passwordResult.Errors.Select(e => e.Description));
-                    return UpdateUserResult.Failure(message);
+                    return UserTransactionResult.Failure(message);
                 }
             }
 
             await transaction.CommitAsync();
-            return UpdateUserResult.Success();
+            return UserTransactionResult.Success();
         }
     }
 }

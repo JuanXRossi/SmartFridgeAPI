@@ -118,63 +118,43 @@ namespace SmartFridgeAPI.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
-            try
+            var existingUserName = await _userManager.FindByNameAsync(registerDto.Username!);
+            
+            if (existingUserName != null)
+                return BadRequest(new { message = "El nombre de usuario ya está en uso." });
+
+            var existingEmail = await _userManager.FindByEmailAsync(registerDto.Email!);
+            
+            if (existingEmail != null)
+                return BadRequest(new { message = "El email ya está en uso." });
+            
+            var user = new User
             {
-                var existingUserName = await _userManager.FindByNameAsync(registerDto.Username!);
-                
-                if (existingUserName != null)
-                    return BadRequest(new { message = "El nombre de usuario ya está en uso." });
+                UserName = registerDto.Username,
+                Email = registerDto.Email,
+                Name = registerDto.Name,
+            };
 
-                var existingEmail = await _userManager.FindByEmailAsync(registerDto.Email!);
-                
-                if (existingEmail != null)
-                    return BadRequest(new { message = "El email ya está en uso." });
-                
-                var user = new User
-                {
-                    UserName = registerDto.Username,
-                    Email = registerDto.Email,
-                    Name = registerDto.Name,
-                };
+            var result = await _accountRepository.RegisterUserAsync(user, registerDto);
 
-                var createdUser = await _userManager.CreateAsync(user, registerDto.Password!);
+            if (!result.Succeeded)
+                return result.IsServerError 
+                    ? StatusCode(500, new { message = result.ErrorMessage })
+                    : BadRequest(new { message = result.ErrorMessage });
 
-                if (createdUser.Succeeded)
-                {
-                    var roleResult = await _userManager.AddToRoleAsync(user, "Member");
+            user.RefreshToken = _tokenService.CreateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
 
-                    if (roleResult.Succeeded)
-                    {
-                        user.RefreshToken = _tokenService.CreateRefreshToken();
-                        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-                        await _userManager.UpdateAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
 
-                        var roles = await _userManager.GetRolesAsync(user);
-
-                        return Ok(
-                            new NewUserDto
-                            {
-                                UserName = user.UserName,
-                                Email = user.Email,
-                                Token = _tokenService.CreateToken(user, roles),
-                                RefreshToken = user.RefreshToken
-                            }
-                        );
-                    } 
-                    else
-                    {
-                        return StatusCode(500, roleResult.Errors);
-                    }
-                }
-                else
-                {
-                    var message = string.Join(", ", createdUser.Errors.Select(e => e.Description));
-                    return BadRequest(new { message });
-                }
-            } catch(Exception e)
+            return Ok(new NewUserDto
             {
-                return StatusCode(500, e.InnerException?.Message ?? e.Message);
-            }
+                UserName = user.UserName,
+                Email = user.Email,
+                Token = _tokenService.CreateToken(user, roles),
+                RefreshToken = user.RefreshToken
+            });
         }
 
         [Authorize]
@@ -204,8 +184,9 @@ namespace SmartFridgeAPI.Controllers
             var result = await _accountRepository.UpdateUserAsync(user, updateDto);
 
             if (!result.Succeeded)
-                return BadRequest(new { message = result.ErrorMessage });
-
+                return result.IsServerError 
+                    ? StatusCode(500, new { message = result.ErrorMessage })
+                    : BadRequest(new { message = result.ErrorMessage });
 
             user.RefreshToken = _tokenService.CreateRefreshToken();
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
