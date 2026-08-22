@@ -42,7 +42,7 @@ namespace SmartFridgeAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(urgency);
+            return Ok(urgency.ToUrgencyDto());
         }
 
         [Authorize(Roles = "Admin")]
@@ -53,7 +53,7 @@ namespace SmartFridgeAPI.Controllers
 
             await _urgencyRepository.CreateAsync(urgencyModel);
 
-            return CreatedAtAction(nameof(GetById), new { id = urgencyModel.Id }, urgencyModel);
+            return CreatedAtAction(nameof(GetById), new { id = urgencyModel.Id }, urgencyModel.ToUrgencyDto());
         }
 
         [Authorize(Roles = "Admin")]
@@ -68,7 +68,7 @@ namespace SmartFridgeAPI.Controllers
                 return NotFound();
             }
 
-            return Ok(urgencyModel);
+            return Ok(urgencyModel.ToUrgencyDto());
         }
 
         [Authorize(Roles = "Admin")]

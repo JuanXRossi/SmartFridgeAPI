@@ -42,9 +42,15 @@ namespace SmartFridgeAPI.Repository
             return await _context.Urgencies.AnyAsync(u => u.Id == urgencyId);
         }
 
-        public async Task<List<Urgency>> GetAllAsync()
+        public async Task<List<UrgencyDto>> GetAllAsync()
         {
-            return await _context.Urgencies.ToListAsync();
+            return await _context.Urgencies
+                .Select(u => new UrgencyDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    MinAmount = u.MinAmount
+                }).ToListAsync();
         }
 
         public async Task<Urgency?> GetByIdAsync(int id)

@@ -5,7 +5,7 @@ namespace SmartFridgeAPI.Interfaces
 {
     public interface IUrgencyRepository
     {
-        Task<List<Urgency>> GetAllAsync();
+        Task<List<UrgencyDto>> GetAllAsync();
 
         Task<Urgency?> GetByIdAsync(int id);
 
