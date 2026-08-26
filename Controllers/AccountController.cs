@@ -66,6 +66,9 @@ namespace SmartFridgeAPI.Controllers
                 return Unauthorized("Nombre de usuario no encontrado y/o contraseña incorrecta");
             }
 
+            if (!user.EmailConfirmed)
+                return StatusCode(403, new { success = false, message = "Debés confirmar tu correo antes de iniciar sesión.", code = "EMAIL_NOT_CONFIRMED" });
+
             user.RefreshToken = _tokenService.CreateRefreshToken();
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _userManager.UpdateAsync(user);
@@ -143,18 +146,14 @@ namespace SmartFridgeAPI.Controllers
                     ? StatusCode(500, new { message = result.ErrorMessage })
                     : BadRequest(new { message = result.ErrorMessage });
 
-            user.RefreshToken = _tokenService.CreateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
+            var emailResult = await _accountRepository.SendConfirmationEmailAsync(user);
 
-            var roles = await _userManager.GetRolesAsync(user);
-
-            return Ok(new NewUserDto
+            return Ok(new
             {
-                UserName = user.UserName,
-                Email = user.Email,
-                Token = _tokenService.CreateToken(user, roles),
-                RefreshToken = user.RefreshToken
+                success = true,
+                message = emailResult.Succeeded
+                    ? "Cuenta creada. Revisá tu correo para confirmar tu cuenta."
+                    : "Cuenta creada, pero no pudimos enviar el correo de confirmación. Podés solicitar un reenvío."
             });
         }
 
@@ -202,6 +201,50 @@ namespace SmartFridgeAPI.Controllers
                 Token = _tokenService.CreateToken(user, roles),
                 RefreshToken = user.RefreshToken
             });
+        }
+
+        [HttpPost("resend-confirmation")]
+        public async Task<IActionResult> ResendConfirmation([FromBody] ResendConfirmationDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+
+            if (user != null && !user.EmailConfirmed)
+                await _accountRepository.SendConfirmationEmailAsync(user);
+
+            return Ok(new { success = true, message = "Si el correo existe y no fue confirmado, te enviamos un nuevo enlace." });
+        }
+
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailDto dto)
+        {
+            var result = await _accountRepository.ConfirmEmailAsync(dto.UserId, dto.Token);
+
+            if (!result.Succeeded)
+                return BadRequest(new { success = false, message = result.ErrorMessage });
+
+            return Ok(new { success = true, message = "Correo confirmado. Ya podés iniciar sesión." });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+
+            if (user != null && user.EmailConfirmed)
+                await _accountRepository.SendPasswordResetEmailAsync(user);
+
+            return Ok(new { success = true, message = "Si el correo existe, te enviamos instrucciones para restablecer tu contraseña." });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            var result = await _accountRepository.ResetPasswordAsync(dto.UserId, dto.Token, dto.NewPassword);
+
+            if (!result.Succeeded)
+                return BadRequest(new { success = false, message = result.ErrorMessage });
+
+            return Ok(new { success = true, message = "Contraseña actualizada. Ya podés iniciar sesión." });
         }
 
         [Authorize]

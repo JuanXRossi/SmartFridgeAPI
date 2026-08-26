@@ -7,7 +7,7 @@ using Serilog;
 using SmartFridgeAPI.Exceptions;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
-using SmartFridgeAPI.Models.Data;
+using SmartFridgeAPI.Data;
 using SmartFridgeAPI.Repository;
 using SmartFridgeAPI.Service;
 
@@ -49,7 +49,19 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
 })
-.AddEntityFrameworkStores<ApplicationDBContext>();
+.AddEntityFrameworkStores<ApplicationDBContext>()
+.AddDefaultTokenProviders();
+
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromHours(24);
+});
+
+builder.Services.AddOptions<DataProtectionTokenProviderOptions>("PasswordResetTokenProvider")
+    .Configure(options =>
+    {
+        options.TokenLifespan = TimeSpan.FromHours(1);
+    });
 
 builder.Services.Configure<PasswordHasherOptions>(options =>
 {
@@ -113,6 +125,7 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IUrgencyRepository, UrgencyRepository>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
