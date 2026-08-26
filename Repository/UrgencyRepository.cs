@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using SmartFridgeAPI.Dtos.Urgency;
 using SmartFridgeAPI.Interfaces;
 using SmartFridgeAPI.Models;
-using SmartFridgeAPI.Models.Data;
+using SmartFridgeAPI.Data;
 
 namespace SmartFridgeAPI.Repository
 {

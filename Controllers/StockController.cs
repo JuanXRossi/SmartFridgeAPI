@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SmartFridgeAPI.Models.Data;
+using SmartFridgeAPI.Data;
 
 namespace SmartFridgeAPI.Controllers
 {

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SmartFridgeAPI.Models;
 
-namespace SmartFridgeAPI.Models.Data
+namespace SmartFridgeAPI.Data
 {
     public class ApplicationDBContext : IdentityDbContext<User>
     {
