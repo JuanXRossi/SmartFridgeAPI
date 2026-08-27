@@ -36,7 +36,7 @@ namespace SmartFridgeAPI.Controllers
             var user = await _userManager.FindByNameAsync(User.GetUsername());
 
             if (user == null)
-                return NotFound("Usuario no encontrado");
+                return StatusCode(404, new { success = false, message = "Usuario no encontrado" });
 
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -56,14 +56,14 @@ namespace SmartFridgeAPI.Controllers
 
             if (user == null)
             {
-                return Unauthorized("Nombre de usuario inválido");
+                return StatusCode(401, new { success = false, message = "Nombre de usuario inválido" });
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
             if (!result.Succeeded)
             {
-                return Unauthorized("Nombre de usuario no encontrado y/o contraseña incorrecta");
+                return StatusCode(401, new { success = false, message = "Nombre de usuario no encontrado y/o contraseña incorrecta" });
             }
 
             if (!user.EmailConfirmed)
@@ -94,12 +94,12 @@ namespace SmartFridgeAPI.Controllers
 
             if (user == null)
             {
-                return Unauthorized("Usuario inválido.");
+                return StatusCode(401, new { success = false, message = "Usuario inválido" });
             }
 
             if (user.RefreshTokenExpiryTime < DateTime.UtcNow)
             {
-                return Unauthorized("Inicio de sesión necesario.");
+                return StatusCode(401, new { success = false, message = "Inicio de sesión necesario" });
             }
 
             user.RefreshToken = _tokenService.CreateRefreshToken();
@@ -125,12 +125,12 @@ namespace SmartFridgeAPI.Controllers
             var existingUserName = await _userManager.FindByNameAsync(registerDto.Username!);
             
             if (existingUserName != null)
-                return BadRequest(new { message = "El nombre de usuario ya está en uso." });
+                return StatusCode(400, new { success = false, message = "El nombre de usuario ya está en uso" });
 
             var existingEmail = await _userManager.FindByEmailAsync(registerDto.Email!);
             
             if (existingEmail != null)
-                return BadRequest(new { message = "El email ya está en uso." });
+                return StatusCode(400, new { success = false, message = "El email ya está en uso" });
             
             var user = new User
             {
@@ -143,8 +143,8 @@ namespace SmartFridgeAPI.Controllers
 
             if (!result.Succeeded)
                 return result.IsServerError 
-                    ? StatusCode(500, new { message = result.ErrorMessage })
-                    : BadRequest(new { message = result.ErrorMessage });
+                    ? StatusCode(500, new { success = false, message = result.ErrorMessage })
+                    : StatusCode(400, new { success = false, message = result.ErrorMessage });
 
             var emailResult = await _accountRepository.SendConfirmationEmailAsync(user);
 
@@ -165,28 +165,28 @@ namespace SmartFridgeAPI.Controllers
             var user = await _userManager.FindByNameAsync(User.GetUsername());
 
             if (user == null)
-                return NotFound("Usuario no encontrado");
+                return StatusCode(404, new { success = false, message = "Usuario no encontrado" });
 
             if (!string.Equals(user.UserName, updateDto.Username, StringComparison.OrdinalIgnoreCase))
             {
                 var existingUser = await _userManager.FindByNameAsync(updateDto.Username!);
                 if (existingUser != null)
-                    return BadRequest(new { message = "El nombre de usuario ya está en uso." });
+                    return StatusCode(400, new { success = false, message = "El nombre de usuario ya está en uso" });
             }
 
             if (!string.Equals(user.Email, updateDto.Email, StringComparison.OrdinalIgnoreCase))
             {
                 var existingUser = await _userManager.FindByEmailAsync(updateDto.Email!);
                 if (existingUser != null)
-                    return BadRequest(new { message = "El email ya está en uso." });
+                    return StatusCode(400, new { success = false, message = "El email ya está en uso" });
             }
 
             var result = await _accountRepository.UpdateUserAsync(user, updateDto);
 
             if (!result.Succeeded)
                 return result.IsServerError 
-                    ? StatusCode(500, new { message = result.ErrorMessage })
-                    : BadRequest(new { message = result.ErrorMessage });
+                    ? StatusCode(500, new { success = false, message = result.ErrorMessage })
+                    : StatusCode(400, new { success = false, message = result.ErrorMessage });
 
             user.RefreshToken = _tokenService.CreateRefreshToken();
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
@@ -242,7 +242,7 @@ namespace SmartFridgeAPI.Controllers
             var result = await _accountRepository.ResetPasswordAsync(dto.UserId, dto.Token, dto.NewPassword);
 
             if (!result.Succeeded)
-                return BadRequest(new { success = false, message = result.ErrorMessage });
+                return StatusCode(400, new { success = false, message = result.ErrorMessage });
 
             return Ok(new { success = true, message = "Contraseña actualizada. Ya podés iniciar sesión." });
         }
@@ -255,7 +255,7 @@ namespace SmartFridgeAPI.Controllers
 
             if (user == null)
             {
-                return Unauthorized("Usuario inválido");
+                return StatusCode(401, new { success = false, message = "Usuario inválido" });
             }
 
             user.RefreshToken = null;
