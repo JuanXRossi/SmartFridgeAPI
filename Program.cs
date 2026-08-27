@@ -50,7 +50,8 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     options.Password.RequiredLength = 8;
 })
 .AddEntityFrameworkStores<ApplicationDBContext>()
-.AddDefaultTokenProviders();
+.AddDefaultTokenProviders()
+.AddTokenProvider<DataProtectorTokenProvider<User>>("PasswordResetTokenProvider");
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
