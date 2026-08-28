@@ -198,6 +198,7 @@ namespace SmartFridgeAPI.Controllers
             {
                 UserName = user.UserName,
                 Email = user.Email,
+                Roles = roles.ToList(),
                 Token = _tokenService.CreateToken(user, roles),
                 RefreshToken = user.RefreshToken
             });
