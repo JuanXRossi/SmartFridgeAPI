@@ -209,10 +209,15 @@ namespace SmartFridgeAPI.Controllers
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
 
-            if (user != null && !user.EmailConfirmed)
-                await _accountRepository.SendConfirmationEmailAsync(user);
+            if(user == null)
+                return StatusCode(404, new { success = false, message = "No existe un usuario asociado al mail provisto" });
 
-            return Ok(new { success = true, message = "Si el correo existe y no fue confirmado, te enviamos un nuevo enlace." });
+            if(user.EmailConfirmed)
+                return StatusCode(400, new { success = false, message = "El mail provisto ya fue confirmado" });
+            
+            await _accountRepository.SendConfirmationEmailAsync(user);
+
+            return Ok(new { success = true, message = "Se te ha enviado un nuevo enlace para confirmar el mail" });
         }
 
         [HttpPost("confirm-email")]
@@ -221,7 +226,7 @@ namespace SmartFridgeAPI.Controllers
             var result = await _accountRepository.ConfirmEmailAsync(dto.UserId, dto.Token);
 
             if (!result.Succeeded)
-                return BadRequest(new { success = false, message = result.ErrorMessage });
+                return StatusCode(400, new { success = false, message = result.ErrorMessage });
 
             return Ok(new { success = true, message = "Correo confirmado. Ya podés iniciar sesión." });
         }
@@ -231,10 +236,13 @@ namespace SmartFridgeAPI.Controllers
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
 
-            if (user != null && user.EmailConfirmed)
+            if (user == null)
+                return StatusCode(404, new { success = false, message = "No existe un usuario asociado al mail provisto" });
+
+            if (user.EmailConfirmed)
                 await _accountRepository.SendPasswordResetEmailAsync(user);
 
-            return Ok(new { success = true, message = "Si el correo existe, te enviamos instrucciones para restablecer tu contraseña." });
+            return Ok(new { success = true, message = "Se te enviaron instrucciones para restablecer tu contraseña" });
         }
 
         [HttpPost("reset-password")]
