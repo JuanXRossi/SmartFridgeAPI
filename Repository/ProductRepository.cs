@@ -66,7 +66,11 @@ namespace SmartFridgeAPI.Repository
                 {
                     Id = p.Id,
                     Name = p.Name,
-                    UrgencyName = p.Urgency!.Name
+                    Urgency = new ProductUrgency
+                    {
+                        Id = p.Urgency!.Id,
+                        Name = p.Urgency!.Name
+                    }
                 })
                 .ToListAsync();
         }

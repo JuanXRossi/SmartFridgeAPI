@@ -11,7 +11,11 @@ namespace SmartFridgeAPI.Mappers
             {
                 Id = product.Id,
                 Name = product.Name,
-                UrgencyName = product.Urgency?.Name ?? "Unknown"
+                Urgency = new ProductUrgency
+                {
+                    Id = product.Urgency?.Id ?? 0,
+                    Name = product.Urgency?.Name ?? "Unknown"
+                }
             };
         }
 

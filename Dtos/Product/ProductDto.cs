@@ -4,6 +4,12 @@ namespace SmartFridgeAPI.Dtos.Product
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string UrgencyName { get; set; } = string.Empty;
+        public ProductUrgency Urgency { get; set; } = new();
+    }
+
+    public class ProductUrgency
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 }
